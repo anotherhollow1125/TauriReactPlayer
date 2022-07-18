@@ -1,25 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react';
+import ReactPlayer from "react-player";
+import { desktopDir, join } from '@tauri-apps/api/path';
+import { convertFileSrc } from '@tauri-apps/api/tauri';
 
-function App() {
+const App = () => {
+  const [src, setSrc] = useState<string>('');
+  const [player, setPlayer] = useState<JSX.Element>();
+
+  useEffect(() => {
+    const fn = async () => {
+      const desktopDirPath = await desktopDir();
+      const url = convertFileSrc(await join(desktopDirPath, src));
+      const player = <ReactPlayer url={url} controls={true} />;
+      setPlayer(player);
+    };
+    fn();
+  }, [src]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <h1>React Player</h1>
+      {player}
+      <br />
+      {src}
+      <br />
+      <br />
+      <input type="text" value={src} onChange={e => setSrc(e.target.value)} />
+    </>
   );
 }
 
