@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
 
 interface IProp {
   dir: string | null;
   setDir: (dir: string) => void;
   setSrc: (src: string) => void;
+  setName: (name: string) => void;
 }
 
 const FileExplorer = (props: IProp) => {
@@ -26,20 +32,44 @@ const FileExplorer = (props: IProp) => {
     })();
   }, [props.dir]);
 
-  const entry_list = entries ? <ul>
+  // TODO: Parent Directory Button
+
+  const entry_list = entries ? <>
     {entries.map(entry => {
+      let item;
       if (entry.type == "dir") {
-        return <li key={entry.path} onClick={() => props.setDir(entry.path)}>{entry.name} &gt;</li>;
+        item = (
+          <ListItemButton onClick={() => props.setDir(entry.path)}>
+            <ListItemText primary={entry.name} />
+          </ListItemButton>
+        ); //<li key={entry.path} onClick={() => props.setDir(entry.path)}>{entry.name} &gt;</li>;
       } else {
-        return <li key={entry.path} onClick={() => props.setSrc(entry.path)}>{entry.name}</li>;
+        item = (
+          <ListItemButton onClick={() => {
+            props.setSrc(entry.path);
+            props.setName(entry.name);
+          }}>
+            <ListItemText primary={entry.name} />
+          </ListItemButton>
+        ); // <li key={entry.path} onClick={() => props.setSrc(entry.path)}>{entry.name}</li>;
       }
+      return (
+        <>
+          <ListItem key={entry.path} disablePadding>
+            {item}
+          </ListItem>
+          <Divider />
+        </>
+      );
     })}
-  </ul> : null;
+  </> : <></>;
 
   return (
     <>
       <h4>{props.dir}</h4>
-      {entry_list}
+      <List>
+        {entry_list}
+      </List>
     </>
   );
 }
