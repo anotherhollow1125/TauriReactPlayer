@@ -1,3 +1,5 @@
+[![Release](https://github.com/anotherhollow1125/TauriReactPlayer/actions/workflows/build.yaml/badge.svg)](https://github.com/anotherhollow1125/TauriReactPlayer/actions/workflows/build.yaml)
+
 # Tauri React Player
 
 ![TauriReactPlayer Demo](misc/TauriReactPlayer.gif)
@@ -6,7 +8,9 @@
 
 ### インストール
 
-(編集中)
+[こちらのページ](https://github.com/anotherhollow1125/TauriReactPlayer/releases/tag/v0.1.0)から使用されているOS向けのバイナリをダウンロードし、それぞれの方法でインストールしてください。
+
+Windows用インストーラ: https://github.com/anotherhollow1125/TauriReactPlayer/releases/download/v0.1.0/tauri-react-player_0.1.0_x64_en-US.msi
 
 ### 使い方
 
