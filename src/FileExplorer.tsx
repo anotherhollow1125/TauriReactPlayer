@@ -49,7 +49,7 @@ const FileExplorer = (props: IProp) => {
   const entry_list = entries ? <>
     {entries.map(entry => {
       let item;
-      if (entry.type == "dir") {
+      if (entry.type === "dir") {
         item = (
           <ListItemButton onClick={() => props.setDir(entry.path)}>
             <ListItemText primary={entry.name} /> <ChevronRightIcon />
