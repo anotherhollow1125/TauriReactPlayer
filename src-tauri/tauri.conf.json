@@ -7,7 +7,7 @@
     "distDir": "../build"
   },
   "package": {
-    "productName": "tauri_react_player",
+    "productName": "tauri-react-player",
     "version": "0.1.0"
   },
   "tauri": {
