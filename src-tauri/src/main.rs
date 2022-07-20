@@ -6,19 +6,22 @@
 #[macro_use]
 extern crate serde;
 
+use if_chain::if_chain;
 use std::fs;
+use std::path::PathBuf;
+use tauri::{Manager, State};
 
 #[derive(Serialize)]
 #[serde(tag = "type")]
 enum Entry {
     #[serde(rename = "file")]
-    File { name: String, path: String },
-    #[serde(rename = "dir")]
-    Dir {
+    File {
         name: String,
         path: String,
-        // entries: Vec<Entry>,
+        size: u64,
     },
+    #[serde(rename = "dir")]
+    Dir { name: String, path: String },
 }
 
 #[tauri::command]
@@ -35,7 +38,11 @@ fn get_entries(path: &str) -> Result<Vec<Entry>, String> {
             if type_.is_dir() {
                 Some(Entry::Dir { name, path })
             } else if type_.is_file() {
-                Some(Entry::File { name, path })
+                Some(Entry::File {
+                    name,
+                    path,
+                    size: entry.metadata().ok()?.len(),
+                })
             } else {
                 None
             }
@@ -55,14 +62,79 @@ fn get_home_dir() -> Result<String, String> {
     Ok(res)
 }
 
+use std::path::Path;
+
 #[tauri::command]
-fn hello(name: &str) -> String {
-    format!("Hello, {}!", name)
+fn get_parent(path: &str) -> Result<String, String> {
+    let path = Path::new(path);
+
+    path.parent()
+        .and_then(|p| {
+            let e = path.exists();
+            if e {
+                Some(p.to_string_lossy().to_string())
+            } else {
+                None
+            }
+        })
+        .ok_or_else(|| "Parent couldn't be found.".to_string())
+}
+
+struct InitialPath(Option<PathBuf>);
+
+#[tauri::command]
+fn get_initial_path(inipath: State<InitialPath>) -> Option<Entry> {
+    // return Some(File) or Some(Dir) or None
+    let res = inipath.0.as_ref().map(|p| {
+        let name = p.file_name().unwrap().to_string_lossy().to_string();
+        let path = p.to_string_lossy().to_string();
+        let type_ = p.metadata().ok()?.file_type();
+
+        if type_.is_dir() {
+            Some(Entry::Dir { name, path })
+        } else if type_.is_file() {
+            Some(Entry::File {
+                name,
+                path,
+                size: p.metadata().ok()?.len(),
+            })
+        } else {
+            None
+        }
+    });
+
+    res.flatten()
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![hello, get_entries, get_home_dir])
+        .invoke_handler(tauri::generate_handler![
+            get_entries,
+            get_home_dir,
+            get_parent,
+            get_initial_path
+        ])
+        .setup(|app| {
+            let mut initial_path = None;
+
+            match app.get_cli_matches() {
+                Ok(matches) => {
+                    if_chain! {
+                        if let Some(arg) = matches.args.get("source");
+                        if let Some(path) = arg.value.as_str();
+                        then {
+                            let path = PathBuf::from(path);
+                            initial_path = Some(path);
+                        }
+                    }
+                }
+                Err(_) => (),
+            }
+
+            app.manage(InitialPath(initial_path));
+
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

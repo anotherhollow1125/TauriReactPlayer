@@ -1,12 +1,12 @@
 import Player from "./Player";
 
 interface IProps {
-  src: string | null;
+  file: FileEntry | null;
 }
 
 const MainContent = (props: IProps) => {
   return (
-    <Player src={props.src} />
+    <Player file={props.file} />
   );
 }
 

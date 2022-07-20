@@ -18,6 +18,15 @@
         "assetScope": ["**"]
       }
     },
+    "cli": {
+      "args": [
+        {
+          "name": "source",
+          "index": 1,
+          "takesValue": true
+        }
+      ]
+    },
     "bundle": {
       "active": true,
       "category": "DeveloperTool",
@@ -33,7 +42,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "tauri-player.namnium.work",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -52,7 +61,7 @@
       }
     },
     "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"
+      "csp": null
     },
     "updater": {
       "active": false
@@ -60,10 +69,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 720,
         "resizable": true,
         "title": "Tauri React Player",
-        "width": 800
+        "width": 1280
       }
     ]
   }

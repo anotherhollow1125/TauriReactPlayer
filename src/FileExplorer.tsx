@@ -5,15 +5,20 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { IconButton } from '@mui/material';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Grid from '@mui/material/Grid';
 
 interface IProp {
   dir: string | null;
   setDir: (dir: string) => void;
-  setSrc: (src: string) => void;
+  setFile: (file: FileEntry) => void;
   setName: (name: string) => void;
 }
 
 const FileExplorer = (props: IProp) => {
+  const [parent, setParent] = useState<string | null>(props.dir);
   const [entries, setEntries] = useState<Entries | null>(null);
 
   useEffect(() => {
@@ -29,6 +34,13 @@ const FileExplorer = (props: IProp) => {
         });
 
       setEntries(entries);
+
+      const parent = await invoke<string>("get_parent", { path: props.dir })
+        .catch(_err => {
+          return null;
+        });
+
+      setParent(parent);
     })();
   }, [props.dir]);
 
@@ -40,13 +52,13 @@ const FileExplorer = (props: IProp) => {
       if (entry.type == "dir") {
         item = (
           <ListItemButton onClick={() => props.setDir(entry.path)}>
-            <ListItemText primary={entry.name} />
+            <ListItemText primary={entry.name} /> <ChevronRightIcon />
           </ListItemButton>
         ); //<li key={entry.path} onClick={() => props.setDir(entry.path)}>{entry.name} &gt;</li>;
       } else {
         item = (
           <ListItemButton onClick={() => {
-            props.setSrc(entry.path);
+            props.setFile(entry);
             props.setName(entry.name);
           }}>
             <ListItemText primary={entry.name} />
@@ -66,7 +78,16 @@ const FileExplorer = (props: IProp) => {
 
   return (
     <>
-      <h4>{props.dir}</h4>
+      <Grid container spacing={1} alignItems='center' sx={{ mx: 1 }}>
+        <Grid item xs={9}>
+          <h4>{props.dir}</h4>
+        </Grid>
+        <Grid item xs={3}>
+          <IconButton onClick={() => parent && props.setDir(parent)}>
+            <KeyboardArrowUpIcon />
+          </IconButton>
+        </Grid>
+      </Grid>
       <List>
         {entry_list}
       </List>

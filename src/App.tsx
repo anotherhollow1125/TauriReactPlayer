@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import MainContent from './MainContent';
 import FileExplorer from './FileExplorer';
 import { invoke } from '@tauri-apps/api/tauri';
+import { getVersion } from '@tauri-apps/api/app';
 
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -16,7 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-const drawerWidth = 240;
+const drawerWidth = 360;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   open?: boolean;
@@ -69,13 +70,42 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const App = () => {
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
+
+  const [version, setVersion] = useState<string>("");
+
   const [name, setName] = useState('React Player by Tauri Apps');
-  const [src, setSrc] = useState<string | null>(null);
+  const [file, setFile] = useState<FileEntry | null>(null);
   const [dir, setDir] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
+      const appVersion = await getVersion();
+      setVersion(appVersion);
+
+      const init_entry = await invoke<Entry | undefined>('get_initial_path');
+
+      let set_dir_flag = false;
+      if (init_entry && init_entry.type === "dir") {
+        setDir(init_entry.path);
+        set_dir_flag = true;
+      } else if (init_entry && init_entry.type === "file") {
+        setFile(init_entry);
+        setName(init_entry.name);
+        const parent = await invoke<string>("get_parent", { path: init_entry.path })
+          .catch(_err => {
+            return null;
+          });
+        if (parent != null) {
+          setDir(parent);
+          set_dir_flag = true;
+        }
+      }
+
+      if (set_dir_flag) {
+        return;
+      }
+
       const homeDir = await invoke<string>("get_home_dir")
         .catch(err => {
           console.error(err);
@@ -132,18 +162,18 @@ const App = () => {
       >
         <DrawerHeader>
           <Typography variant="h6" noWrap>
-            React Player
+            React Player v.{version}
           </Typography>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <FileExplorer dir={dir} setDir={setDir} setSrc={setSrc} setName={setName} />
+        <FileExplorer dir={dir} setDir={setDir} setFile={setFile} setName={setName} />
       </Drawer>
       <Main open={open}>
         <DrawerHeader />
-        <MainContent src={src} />
+        <MainContent file={file} />
       </Main>
     </Box>
   );
