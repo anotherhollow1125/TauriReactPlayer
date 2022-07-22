@@ -18,3 +18,9 @@ Windows用インストーラ: https://github.com/anotherhollow1125/TauriReactPla
 - 動画ファイルを「プログラムから開く」で立ち上げる: 直接動画ファイルを開くことができます。
 
 対応する動画ファイルは.mp4など一般的な動画ファイルのみです。
+
+### 関連
+
+本動画プレイヤーを途中まで作成するハンズオンの記事をQiitaで公開しています！
+
+https://qiita.com/namn1125/items/8153f7c0881b7d4127ed
