@@ -19,6 +19,10 @@ Windows用インストーラ: https://github.com/anotherhollow1125/TauriReactPla
 
 対応する動画ファイルは.mp4など一般的な動画ファイルのみです。
 
+### クローンする場合
+
+Tauriのための環境構築を済ませた上で、`yarn install`コマンドを打てば開発できるようになります。
+
 ### 関連
 
 本動画プレイヤーを途中まで作成するハンズオンの記事をQiitaで公開しています！
